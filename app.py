@@ -3,19 +3,35 @@ import pandas as pd
 import plotly.express as px
 import yfinance as yf
 
+# Safe Data Fetching Function
+def get_safe_data(ticker_symbol):
+    try:
+        # Kita ambil data 5 hari terakhir supaya kalau pasaran tutup, dia ambil harga terakhir ada
+        ticker = yf.Ticker(ticker_symbol)
+        df = ticker.history(period="5d")
+        if not df.empty:
+            return df['Close'].iloc[-1]
+        return 0
+    except:
+        return 0
+
 st.set_page_config(page_title="GLOBAL ERASURE ENGINE", layout="wide")
 st.title("🌐 THE GLOBAL ERASURE ENGINE")
 st.markdown("### Strategic Intelligence: US/Israel vs Iran - Global Impact Analysis")
 
-@st.cache_data(ttl=60)
-def get_world_proxies():
-    tickers = {"Energy": "BZ=F", "Defense": "ITA", "USD_Strength": "DX-Y.NYB"}
-    return {name: yf.Ticker(sym).history(period="1d", interval="1m")['Close'].iloc[-1] for name, sym in tickers.items()}
+# Fetch Data
+with st.spinner('Fetching Global Intelligence...'):
+    energy_price = get_safe_data("BZ=F")
+    defense_price = get_safe_data("ITA")
+    usd_strength = get_safe_data("DX-Y.NYB")
 
-market_data = get_world_proxies()
+# Fallback values if data is missing
+energy_val = energy_price if energy_price > 0 else 80.0
+usd_val = usd_strength if usd_strength > 0 else 100.0
+
 df_world = px.data.gapminder().query("year == 2007")
 countries = df_world['country'].unique()
-risk_multiplier = (market_data['Energy'] / 80) + (market_data['USD_Strength'] / 100)
+risk_multiplier = (energy_val / 80) + (usd_val / 100)
 
 world_risk_data = pd.DataFrame({
     'Country': countries,
