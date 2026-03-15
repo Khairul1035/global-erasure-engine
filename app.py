@@ -61,7 +61,7 @@ wheat_size = max(0.1, (base_wheat / data['Wheat']) / multiplier)
 corn_size = max(0.1, (base_corn / data['Corn']) / multiplier)
 
 # 5. UI Display
-st.title("🍽️ Global Erasure Engine")
+st.title("🍽️ THE EMPTY PLATE INDEX")
 st.markdown("### *Module: The Empty Plate Index*")
 st.write("Tracking how geopolitical conflict 'erases' food security in real-time.")
 
