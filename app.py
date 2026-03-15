@@ -3,7 +3,7 @@ import yfinance as yf
 import pandas as pd
 
 # 1. Page Config
-st.set_page_config(page_title="Global Erasure Engine", layout="centered")
+st.set_page_config(page_title="THE EMPTY PLATE INDEX", layout="centered")
 
 # 2. Styling (HCI - Make it look clean and impactful)
 st.markdown("""
