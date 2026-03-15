@@ -9,6 +9,7 @@ import numpy as np
 # ==========================================
 st.set_page_config(page_title="GLOBAL WAR INVOICE - Strategic Intelligence", layout="wide")
 
+# FIX: Changed unsafe_allow_index to unsafe_allow_html
 st.markdown("""
     <style>
     .receipt-container { 
@@ -23,7 +24,7 @@ st.markdown("""
     }
     .stMetric { background-color: #111; padding: 15px; border-radius: 10px; border: 1px solid #333; }
     </style>
-    """, unsafe_allow_index=True)
+    """, unsafe_allow_html=True)
 
 # ==========================================
 # 2. STRATEGIC COUNTRY PROFILES (Rigorous Logic)
@@ -41,7 +42,6 @@ COUNTRY_PROFILES = {
 @st.cache_data(ttl=300)
 def fetch_global_intelligence():
     try:
-        # Tickers: Oil (Energy War), USD Index (Fiscal Integrity), Gold (Global Panic Index)
         tickers = {"Oil": "BZ=F", "USD": "DX-Y.NYB", "Panic": "GC=F"}
         return {name: yf.Ticker(sym).history(period="1d")['Close'].iloc[-1] for name, sym in tickers.items()}
     except:
@@ -54,7 +54,7 @@ mkt = fetch_global_intelligence()
 # ==========================================
 with st.sidebar:
     st.header("👤 Project Architect")
-    st.markdown("""
+    st.markdown(f"""
     **Mohd Khairul Ridhuan bin Mohd Fadzil**  
     *Expertise:*
     - Islamic Studies (Maqasid)
@@ -100,11 +100,11 @@ def generate_invoice(name, market, esc_level):
     profile = COUNTRY_PROFILES[name]
     esc_mod = {"Peace": 0.5, "Localized": 1.0, "High Tension": 1.8, "Regional War": 3.0, "Total War": 6.0}[esc_level]
     
-    # Financial Logic: Importers pay more for oil, Exporters pay more for logistics
     energy_tax = (market['Oil'] - 75) * (0.8 if profile["type"] == "Net Importer" else 0.2) * esc_mod
     inflation_tax = (market['USD'] - 100) * profile["usd_dep"] * esc_mod
     amygdala_load = "CRITICAL" if profile["proximity"] in ["High", "Critical"] else "ELEVATED"
     
+    # FIX: Changed unsafe_allow_index to unsafe_allow_html
     st.markdown(f"""
     <div class="receipt-container">
         <center><b>OFFICIAL WAR INVOICE</b><br>{name.upper()}</center>
@@ -120,7 +120,7 @@ def generate_invoice(name, market, esc_level):
         <center><b>TOTAL: ERODING SOVEREIGNTY</b><br>
         <i>"Their war, your bill."</i></center>
     </div>
-    """, unsafe_allow_index=True)
+    """, unsafe_allow_html=True)
 
 st.divider()
 res1, res2, res3 = st.columns(3)
