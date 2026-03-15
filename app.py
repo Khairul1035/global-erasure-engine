@@ -3,131 +3,142 @@ import pandas as pd
 import plotly.express as px
 import yfinance as yf
 import numpy as np
-import wbgapi as wb
 
 # ==========================================
-# 1. HEADER & BRANDING
+# 1. HCI & BRANDING SETUP (Professional Dark Mode)
 # ==========================================
-st.set_page_config(page_title="GLOBAL ERASURE INTEL - Khairul Ridhuan", layout="wide")
+st.set_page_config(page_title="GLOBAL WAR INVOICE - Strategic Intelligence", layout="wide")
 
-with st.sidebar:
-    st.header("Project Architect")
-    st.markdown(f"**Mohd Khairul Ridhuan bin Mohd Fadzil**")
-    st.caption("Islamic Studies | Financial Criminology | AI | HCI | Geopolitics")
-    st.divider()
-    st.info("📡 Data Source: World Bank (Official) + Yahoo Finance (Real-time)")
+st.markdown("""
+    <style>
+    .receipt-container { 
+        font-family: 'Courier New', Courier, monospace; 
+        color: black; 
+        background-color: #ffffff; 
+        padding: 25px; 
+        border-radius: 15px; 
+        border: 3px solid #333; 
+        box-shadow: 5px 10px #888888;
+        margin-bottom: 20px; 
+    }
+    .stMetric { background-color: #111; padding: 15px; border-radius: 10px; border: 1px solid #333; }
+    </style>
+    """, unsafe_allow_index=True)
 
 # ==========================================
-# 2. DATA ACQUISITION (REAL-TIME + OFFICIAL)
+# 2. STRATEGIC COUNTRY PROFILES (Rigorous Logic)
 # ==========================================
-@st.cache_data(ttl=3600) # Cache 1 jam supaya laju
-def get_official_debt_data():
-    try:
-        # Menarik data Debt-to-GDP (Central Government Debt) dari Bank Dunia
-        # Kod: GC.DOD.TOTL.GD.ZS
-        df = wb.data.DataFrame('GC.DOD.TOTL.GD.ZS', time=range(2020, 2024), labels=True)
-        return df
-    except:
-        return None
+COUNTRY_PROFILES = {
+    "Malaysia": {"type": "Net Exporter", "debt_risk": "Moderate", "proximity": "Medium", "usd_dep": 0.75},
+    "United Kingdom": {"type": "Net Importer", "debt_risk": "Low", "proximity": "Low", "usd_dep": 0.50},
+    "Jordan": {"type": "Net Importer", "debt_risk": "Critical", "proximity": "High", "usd_dep": 0.90},
+    "Saudi Arabia": {"type": "Net Exporter", "debt_risk": "Low", "proximity": "High", "usd_dep": 0.80},
+    "Egypt": {"type": "Net Importer", "debt_risk": "Critical", "proximity": "High", "usd_dep": 0.85},
+    "Singapore": {"type": "Net Importer", "debt_risk": "Stable", "proximity": "Medium", "usd_dep": 0.65},
+    "Germany": {"type": "Net Importer", "debt_risk": "Stable", "proximity": "Low", "usd_dep": 0.60}
+}
 
 @st.cache_data(ttl=300)
-def get_market_data():
+def fetch_global_intelligence():
     try:
-        tickers = {"USD": "DX-Y.NYB", "Oil": "BZ=F", "Gold": "GC=F"}
-        return {name: yf.Ticker(sym).history(period="5d")['Close'].iloc[-1] for name, sym in tickers.items()}
+        # Tickers: Oil (Energy War), USD Index (Fiscal Integrity), Gold (Global Panic Index)
+        tickers = {"Oil": "BZ=F", "USD": "DX-Y.NYB", "Panic": "GC=F"}
+        return {name: yf.Ticker(sym).history(period="1d")['Close'].iloc[-1] for name, sym in tickers.items()}
     except:
-        return {"USD": 104.0, "Oil": 82.0, "Gold": 2100.0}
+        return {"Oil": 85.0, "USD": 104.0, "Panic": 2100.0}
 
-official_debt = get_official_debt_data()
-mkt = get_market_data()
+mkt = fetch_global_intelligence()
 
 # ==========================================
-# 3. GLOBAL ENGINE LOGIC
+# 3. SIDEBAR CONTROLS (HCI Design)
 # ==========================================
-df_world_base = px.data.gapminder().query("year == 2007")
-countries = sorted(df_world_base['country'].unique())
-
-def calculate_strategic_risk(country):
-    seed = hash(country)
-    # Kebergantungan (Simulasi Strategik)
-    dep_us = min(85, 30 + (seed % 45))
-    dep_iran = min(60, 10 + (seed % 35))
-    
-    # Ambil data hutang rasmi jika ada, jika tiada guna baseline 55%
-    base_debt = 55.0
-    if official_debt is not None:
-        try:
-            # Cari data hutang paling terkini dari Bank Dunia untuk negara tersebut
-            country_debt = official_debt[official_debt['Country'] == country].iloc[:, -1].values[0]
-            if not np.isnan(country_debt):
-                base_debt = country_debt
-        except: pass
-        
-    # Impact Perang (Real-time calculation)
-    impact = (mkt['Oil']/80 * 0.5) + (mkt['USD']/100 * 0.5)
-    projected_debt = base_debt + (impact * (dep_iran/10))
-    
-    return dep_us, dep_iran, base_debt, projected_debt
+with st.sidebar:
+    st.header("👤 Project Architect")
+    st.markdown("""
+    **Mohd Khairul Ridhuan bin Mohd Fadzil**  
+    *Expertise:*
+    - Islamic Studies (Maqasid)
+    - Financial Criminology
+    - Artificial Intelligence
+    - Corporate Sustainability
+    - HCI & Geopolitics
+    """)
+    st.divider()
+    st.header("⚙️ Strategic Parameters")
+    escalation = st.select_slider("Conflict Escalation Level", 
+                                  options=["Peace", "Localized", "High Tension", "Regional War", "Total War"])
+    st.divider()
+    st.info("System Status: Real-time Data Sync Active")
 
 # ==========================================
 # 4. MAIN INTERFACE
 # ==========================================
-st.title("🌐 THE GLOBAL ERASURE ENGINE")
-st.caption(f"Architect: **Mohd Khairul Ridhuan bin Mohd Fadzil** | Hybrid Intelligence V4.5")
+st.title("🌐 THE GLOBAL WAR INVOICE ENGINE")
+st.markdown("##### *Strategic Intelligence Dashboard: Tracking the Indirect Cost of US-Israel-Iran Conflict*")
+st.caption("A Multidisciplinary Framework: Finance • Neuroscience • Islamic Ethics • Geopolitics")
 
-tab1, tab2, tab3 = st.tabs(["🌍 Global Risk Map", "🔍 Sovereign Debt Audit", "🤖 AI Predictive"])
+# Global Real-time Metrics
+c1, c2, c3 = st.columns(3)
+with c1: st.metric("Energy Proxy (Brent Oil)", f"${mkt['Oil']:.2f}", escalation)
+with c2: st.metric("Fiscal Proxy (USD Index)", f"{mkt['USD']:.2f}", "Debt Pressure")
+with c3: st.metric("Neuroscience (Panic Index)", f"{mkt['Panic']:.0f} Hz", "Amygdala Alert")
 
-with tab1:
-    risk_data = pd.DataFrame({
-        'Country': countries,
-        'Risk_Index': [min(100, (mkt['Oil']/80 * 40) + (hash(c)%40)) for c in countries]
-    })
-    fig = px.choropleth(risk_data, locations="Country", locationmode='country names',
-                        color="Risk_Index", color_continuous_scale="Reds", template="plotly_dark")
-    st.plotly_chart(fig, use_container_width=True)
-
-with tab2:
-    selected_country = st.selectbox("Select Country for Official Debt Audit:", countries)
-    us_dep, ir_dep, b_debt, p_debt = calculate_strategic_risk(selected_country)
-    
-    st.subheader(f"Strategic Audit: {selected_country}")
-    
-    c1, c2, c3 = st.columns(3)
-    c1.metric("World Bank Debt (Official)", f"{b_debt:.1f}%", "Baseline")
-    c2.metric("Projected Debt (War Impact)", f"{p_debt:.1f}%", f"+{p_debt-b_debt:.1f}%")
-    c3.metric("Neural Despair Index", f"{(p_debt/2):.1f} Hz")
-
-    st.divider()
-    
-    # Debt Visualization
-    st.write("**Debt Evolution: Official vs Projected (Conflict Context)**")
-    debt_viz = pd.DataFrame({
-        'Scenario': ['Official (Bank Dunia)', 'Predicted (War Scenario)'],
-        'Debt-to-GDP (%)': [b_debt, p_debt]
-    })
-    st.bar_chart(debt_viz, x='Scenario', y='Debt-to-GDP (%)', color="#ff4b4b")
-
-with tab3:
-    st.subheader("🔮 Predictive Trajectory (90 Days)")
-    integrity = 100 - (p_debt * 0.6)
-    timeline = np.array(range(90))
-    prediction = integrity - (timeline * (ir_dep/500))
-    fig_predict = px.line(x=timeline, y=prediction, labels={'x': 'Days', 'y': 'Integrity Score (%)'}, template="plotly_dark")
-    fig_predict.add_hline(y=60, line_dash="dash", line_color="red", annotation_text="Sovereign Red Zone")
-    st.plotly_chart(fig_predict, use_container_width=True)
+st.divider()
 
 # ==========================================
-# 5. STRATEGIC BRIEFING
+# 5. TRIPLE COMPARISON INVOICES
+# ==========================================
+st.subheader("📋 Comparative War Invoices (3-Way National Audit)")
+st.write("Compare how the conflict 'erases' the integrity of different nations simultaneously.")
+
+sel1, sel2, sel3 = st.columns(3)
+with sel1: country1 = st.selectbox("Select Country A:", list(COUNTRY_PROFILES.keys()), index=0)
+with sel2: country2 = st.selectbox("Select Country B:", list(COUNTRY_PROFILES.keys()), index=1)
+with sel3: country3 = st.selectbox("Select Country C:", list(COUNTRY_PROFILES.keys()), index=2)
+
+def generate_invoice(name, market, esc_level):
+    profile = COUNTRY_PROFILES[name]
+    esc_mod = {"Peace": 0.5, "Localized": 1.0, "High Tension": 1.8, "Regional War": 3.0, "Total War": 6.0}[esc_level]
+    
+    # Financial Logic: Importers pay more for oil, Exporters pay more for logistics
+    energy_tax = (market['Oil'] - 75) * (0.8 if profile["type"] == "Net Importer" else 0.2) * esc_mod
+    inflation_tax = (market['USD'] - 100) * profile["usd_dep"] * esc_mod
+    amygdala_load = "CRITICAL" if profile["proximity"] in ["High", "Critical"] else "ELEVATED"
+    
+    st.markdown(f"""
+    <div class="receipt-container">
+        <center><b>OFFICIAL WAR INVOICE</b><br>{name.upper()}</center>
+        <hr>
+        <b>Profile:</b> {profile['type']}<br>
+        <b>Sovereign Risk:</b> {profile['debt_risk']}<br>
+        <hr>
+        1. FUEL & LOGISTICS COST ... +{energy_tax:.2f}%<br>
+        2. IMPORTED GOODS TAX ...... +{inflation_tax:.2f}%<br>
+        3. SOCIETAL PANIC LOAD ..... {amygdala_load}<br>
+        4. NATIONAL AUTONOMY RISK .. {profile['proximity']}<br>
+        <hr>
+        <center><b>TOTAL: ERODING SOVEREIGNTY</b><br>
+        <i>"Their war, your bill."</i></center>
+    </div>
+    """, unsafe_allow_index=True)
+
+st.divider()
+res1, res2, res3 = st.columns(3)
+with res1: generate_invoice(country1, mkt, escalation)
+with res2: generate_invoice(country2, mkt, escalation)
+with res3: generate_invoice(country3, mkt, escalation)
+
+# ==========================================
+# 6. STRATEGIC BRIEFING (The "Why")
 # ==========================================
 st.divider()
-st.subheader("📡 Automated Strategic Intelligence Briefing")
-briefing = f"""
-**Subject:** Sovereign Audit of {selected_country}  
-**Official Context:** Based on latest World Bank data, {selected_country} has a baseline debt of {b_debt:.1f}%.
-**Intelligence Insight:** The conflict-driven surge in Oil ({mkt['Oil']:.2f}) and USD ({mkt['USD']:.2f}) 
-is projected to push debt levels to {p_debt:.1f}%. 
-**Maqasid Audit:** This erosion of *Hifz al-Mal* (Financial Integrity) creates a high risk of 'Sovereign Erasure'.
-"""
-st.success(briefing)
+st.subheader("📡 World Strategist Briefing")
+st.info(f"""
+**Executive Analysis:**
+Based on the current escalation level of **{escalation}**, we detect a diverging 'Integrity Erosion' pattern:
+1. **Accounting Perspective:** {country1} and {country2} are facing hidden fiscal penalties due to currency-inflation spirals.
+2. **Neuroscience Perspective:** High 'Amygdala Stress' levels across these regions trigger market hyper-vigilance, leading to 'Digital Flight' (Data/Investment capital outflow).
+3. **Islamic Ethics (Maqasid):** This is a systemic violation of *Hifz al-Mal* (Wealth Integrity). Global conflict is 'stealing' the purchasing power and national assets of citizens through supply chain manipulation.
+""")
 
-st.caption("© 2026 | Mohd Khairul Ridhuan bin Mohd Fadzil | Official Data Integration Mode")
+st.caption("© 2026 | Developed by Mohd Khairul Ridhuan bin Mohd Fadzil | Version 5.5 (Global Strategist Edition)")
