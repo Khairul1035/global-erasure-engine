@@ -5,161 +5,175 @@ import yfinance as yf
 import numpy as np
 
 # ==========================================
-# 1. HCI & BRANDING SETUP (SOFT THEME)
+# 1. SETTING THEME & UI (SOFT & CLEAN)
 # ==========================================
-st.set_page_config(page_title="GLOBAL WAR INVOICE", layout="wide")
+st.set_page_config(page_title="GLOBAL WAR INVOICE V7", layout="wide")
 
-# CSS untuk background lembut dan tulisan hitam
 st.markdown("""
     <style>
-    /* Background Utama - Soft Light Grey */
-    .stApp {
-        background-color: #F8F9FA;
+    .stApp { background-color: #F0F2F6; }
+    h1, h2, h3, p, span, label, .stSelectbox label { color: #1A1A1A !important; font-family: 'Segoe UI', sans-serif; }
+    
+    /* Card Styling */
+    .metric-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border: 1px solid #E2E8F0;
+        text-align: center;
     }
     
-    /* Semua tulisan default jadi Hitam/Gelap */
-    h1, h2, h3, h4, h5, h6, p, span, label {
-        color: #1A202C !important;
-    }
-
-    /* Metric Box - Putih bersih dengan border */
-    [data-testid="stMetric"] {
-        background-color: #ffffff !important;
-        padding: 20px;
-        border-radius: 10px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    [data-testid="stMetricValue"] {
-        color: #2D3748 !important;
-        font-weight: bold;
-    }
-    [data-testid="stMetricLabel"] {
-        color: #4A5568 !important;
-    }
-
-    /* Receipt Box Styling - Putih Kertas & Tulisan Hitam Pekat */
+    /* Receipt Styling */
     .receipt-container { 
         font-family: 'Courier New', Courier, monospace; 
         color: #000000 !important; 
         background-color: #ffffff !important; 
-        padding: 30px; 
-        border-radius: 5px; 
-        border: 2px solid #1A202C; 
-        box-shadow: 10px 10px 0px #CBD5E0;
-        margin-top: 20px;
-        min-height: 450px;
-    }
-    
-    /* Sidebar styling */
-    .css-1d391kg {
-        background-color: #EDF2F7;
-    }
-    
-    hr {
-        border-top: 1px solid #CBD5E0 !important;
+        padding: 25px; 
+        border: 2px solid #333; 
+        box-shadow: 8px 8px 0px #A0AEC0;
+        margin-bottom: 20px;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. DATA & LOGIC
+# 2. GLOBAL DATA ENGINE
 # ==========================================
-COUNTRY_PROFILES = {
-    "Malaysia": {"type": "Net Exporter", "debt_risk": "Moderate", "proximity": "Medium", "usd_dep": 0.75},
-    "United Kingdom": {"type": "Net Importer", "debt_risk": "Low", "proximity": "Low", "usd_dep": 0.50},
-    "Jordan": {"type": "Net Importer", "debt_risk": "Critical", "proximity": "High", "usd_dep": 0.90},
-    "Saudi Arabia": {"type": "Net Exporter", "debt_risk": "Low", "proximity": "High", "usd_dep": 0.80},
-    "Germany": {"type": "Net Importer", "debt_risk": "Stable", "proximity": "Low", "usd_dep": 0.60},
-    "Egypt": {"type": "Net Importer", "debt_risk": "Critical", "proximity": "High", "usd_dep": 0.85}
-}
+@st.cache_data
+def get_world_data():
+    # Menggunakan senarai negara standard dari Plotly
+    df = px.data.gapminder().query("year == 2007")
+    countries = df['country'].unique()
+    return countries
 
+def calculate_risk_score(region, escalation_level):
+    # Logik risiko berdasarkan wilayah (Simulasi)
+    base_scores = {
+        'Asia': 40, 'Europe': 30, 'Africa': 50, 
+        'Americas': 25, 'Oceania': 20, 'Middle East': 85
+    }
+    esc_mult = {"Peace": 0.2, "Localized": 1.0, "High Tension": 1.8, "Regional War": 3.5, "Total War": 7.0}
+    return base_scores.get(region, 30) * esc_mult[escalation_level]
+
+# Fetch Real-time Market Data
 @st.cache_data(ttl=300)
-def fetch_mkt():
+def fetch_market():
     try:
-        # Data simulasi jika yfinance lambat
-        return {"Oil": 86.45, "USD": 104.12, "Panic": 2150}
+        oil = yf.Ticker("BZ=F").history(period="1d")['Close'].iloc[-1]
+        usd = yf.Ticker("DX-Y.NYB").history(period="1d")['Close'].iloc[-1]
+        return {"Oil": round(oil, 2), "USD": round(usd, 2)}
     except:
-        return {"Oil": 85.0, "USD": 104.0, "Panic": 2100.0}
+        return {"Oil": 86.50, "USD": 104.20}
 
-mkt = fetch_mkt()
+mkt = fetch_market()
+all_countries = get_world_data()
 
 # ==========================================
-# 3. SIDEBAR
+# 3. SIDEBAR CONTROLS
 # ==========================================
 with st.sidebar:
-    st.header("👤 Project Architect")
-    st.markdown("""
-    **Mohd Khairul Ridhuan**  
-    *Expertise:*
-    - Maqasid Shariah
-    - Financial Criminology
-    - Artificial Intelligence
-    """)
+    st.header("👤 Strategic Architect")
+    st.write("**Mohd Khairul Ridhuan**")
     st.divider()
-    st.header("⚙️ Parameters")
-    escalation = st.select_slider("Conflict Escalation", 
-                                  options=["Peace", "Localized", "High Tension", "Regional War", "Total War"],
-                                  value="Localized")
-    st.success("System: Ready")
+    
+    st.subheader("⚙️ Global Scenario")
+    escalation = st.select_slider(
+        "Tahap Eskalasi Konflik",
+        options=["Peace", "Localized", "High Tension", "Regional War", "Total War"],
+        value="Localized"
+    )
+    
+    st.divider()
+    selected_country = st.selectbox("Cari Negara Spesifik:", sorted(all_countries), index=83) # Default: Malaysia
+    st.info("Peta dan invois akan berubah secara automatik apabila parameter diubah.")
 
 # ==========================================
-# 4. MAIN DASHBOARD
+# 4. INTERACTIVE VISUALIZATION (MAP)
 # ==========================================
-st.title("🌐 THE GLOBAL WAR INVOICE")
-st.markdown("### *Strategic Intelligence Dashboard*")
+st.title("🌐 GLOBAL WAR INVOICE ENGINE")
+st.markdown("##### *Sistem Pemantauan Integriti Kedaulatan Negara (Versi Global)*")
 
-# Metrics
+# Row 1: Market Metrics
 c1, c2, c3 = st.columns(3)
-with c1: st.metric("Brent Oil", f"${mkt['Oil']}", escalation)
-with c2: st.metric("USD Index", f"{mkt['USD']}", "Currency Risk")
-with c3: st.metric("Neural Stress", f"{mkt['Panic']} Hz", "Market Volatility")
+with c1: 
+    st.markdown(f'<div class="metric-card"><h3>Harga Minyak</h3><h2>${mkt["Oil"]}</h2><p>Brent Crude</p></div>', unsafe_allow_html=True)
+with c2:
+    st.markdown(f'<div class="metric-card"><h3>Indeks Dolar</h3><h2>{mkt["USD"]}</h2><p>USD Dominance</p></div>', unsafe_allow_html=True)
+with c3:
+    st.markdown(f'<div class="metric-card"><h3>Escalation</h3><h2>{escalation}</h2><p>Conflict Level</p></div>', unsafe_allow_html=True)
 
+st.write("---")
+
+# Row 2: World Risk Map
+st.subheader("🗺️ Global Risk Projection Map")
+# Generate data untuk peta
+map_data = px.data.gapminder().query("year == 2007")
+map_data['Risk_Impact'] = map_data.apply(lambda row: calculate_risk_score(row['continent'], escalation), axis=1)
+
+fig = px.choropleth(
+    map_data, 
+    locations="iso_alpha",
+    color="Risk_Impact",
+    hover_name="country",
+    color_continuous_scale="Reds",
+    projection="natural earth",
+    title=f"Unjuran Impak Ekonomi Global pada tahap: {escalation}"
+)
+fig.update_layout(margin=dict(l=0, r=0, t=40, b=0), paper_bgcolor='rgba(0,0,0,0)')
+st.plotly_chart(fig, use_container_width=True)
+
+# ==========================================
+# 5. DYNAMIC WAR INVOICE
+# ==========================================
 st.divider()
+st.subheader(f"📋 War Invoice: {selected_country}")
 
-# Selection
-st.subheader("📋 Comparative National Audit")
-sel1, sel2, sel3 = st.columns(3)
-with sel1: country1 = st.selectbox("Select Country A:", list(COUNTRY_PROFILES.keys()), index=0)
-with sel2: country2 = st.selectbox("Select Country B:", list(COUNTRY_PROFILES.keys()), index=4)
-with sel3: country3 = st.selectbox("Select Country C:", list(COUNTRY_PROFILES.keys()), index=3)
+col_left, col_right = st.columns([1, 2])
 
-def generate_invoice(name, market, esc_level):
-    profile = COUNTRY_PROFILES[name]
-    esc_mod = {"Peace": 0.5, "Localized": 1.2, "High Tension": 2.5, "Regional War": 5.0, "Total War": 10.0}[esc_level]
-    
-    energy_tax = (market['Oil'] - 70) * (0.9 if profile["type"] == "Net Importer" else 0.2) * esc_mod
-    inf_tax = (market['USD'] - 100) * profile["usd_dep"] * esc_mod
-    
+with col_left:
+    # Logic Invois
+    esc_val = {"Peace": 0.5, "Localized": 1.5, "High Tension": 3.0, "Regional War": 6.0, "Total War": 12.0}[escalation]
+    energy_tax = (mkt['Oil'] - 70) * esc_val * 0.5
+    currency_loss = (mkt['USD'] - 100) * esc_val * 0.8
+    total_erosion = energy_tax + currency_loss
+
     st.markdown(f"""
     <div class="receipt-container">
         <center>
-            <h2 style="color:black !important; margin-bottom:0;">OFFICIAL INVOICE</h2>
-            <p style="color:black !important; margin-top:0;"><b>SOVEREIGNTY EROSION</b></p>
+            <h2 style="color:black;">WAR INVOICE</h2>
+            <p style="color:black;">Audit No: #{np.random.randint(100000, 999999)}</p>
         </center>
-        <hr style="border-top: 2px dashed black !important;">
-        <p style="color:black !important;"><b>NATION:</b> {name.upper()}</p>
-        <p style="color:black !important;"><b>TYPE:</b> {profile['type']}</p>
-        <p style="color:black !important;"><b>DEBT RISK:</b> {profile['debt_risk']}</p>
-        <hr style="border-top: 1px dashed black !important;">
-        <p style="color:black !important;">1. ENERGY SURCHARGE ... +{energy_tax:.2f}%</p>
-        <p style="color:black !important;">2. INFLATION TAX ...... +{inf_tax:.2f}%</p>
-        <p style="color:black !important;">3. KINETIC RISK ....... {profile['proximity']}</p>
-        <p style="color:black !important;">4. MAQASID INTEGRITY .. ERODING</p>
-        <br><br>
-        <hr style="border-top: 2px solid black !important;">
-        <center>
-            <b style="color:black !important;">TOTAL COST: NATION AT RISK</b><br>
-            <small style="color:black !important;">"The price of global instability."</small>
-        </center>
+        <hr style="border-top: 2px dashed black;">
+        <p style="color:black;"><b>NEGARA:</b> {selected_country.upper()}</p>
+        <p style="color:black;"><b>STATUS:</b> SOVEREIGN ENTITY</p>
+        <hr style="border-top: 1px dashed black;">
+        <p style="color:black;">KOS TENAGA (HIDDEN) ... +{energy_tax:.2f}%</p>
+        <p style="color:black;">KEHILANGAN FIAT ...... +{currency_loss:.2f}%</p>
+        <p style="color:black;">TEKANAN SOSIAL ....... {escalation.upper()}</p>
+        <hr style="border-top: 1px dashed black;">
+        <h3 style="color:black; text-align:center;">HIFZ AL-MAL EROSION:</h3>
+        <h2 style="color:red; text-align:center;">{total_erosion:.2f}%</h2>
+        <hr style="border-top: 2px solid black;">
+        <center><small style="color:black;">Generated by Mohd Khairul Ridhuan Intelligence Engine</small></center>
     </div>
     """, unsafe_allow_html=True)
 
-# Output Invoices
-res1, res2, res3 = st.columns(3)
-with res1: generate_invoice(country1, mkt, escalation)
-with res2: generate_invoice(country2, mkt, escalation)
-with res3: generate_invoice(country3, mkt, escalation)
+with col_right:
+    st.write("### Strategist Analysis")
+    st.info(f"""
+    **Analisis untuk {selected_country}:**
+    1. **Impak Ekonomi:** Pada tahap **{escalation}**, {selected_country} terpaksa membayar "cukai perang tersembunyi" sebanyak {total_erosion:.2f}% akibat kenaikan kos logistik global.
+    2. **Kedaulatan (Maqasid):** Pelanggaran prinsip *Hifz al-Mal* berlaku kerana kuasa beli rakyat semakin mengecil tanpa peperangan fizikal di tanah air sendiri.
+    3. **Tindakan Strategik:** Disyorkan untuk mempelbagaikan rizab mata wang dan mengurangkan kebergantungan kepada rantaian bekalan yang dikawal oleh kuasa besar.
+    """)
+    
+    # Chart Trend Ringkas
+    chart_data = pd.DataFrame({
+        'Kategori': ['Tenaga', 'Matawang', 'Sosial', 'Makanan'],
+        'Tahap Risiko': [energy_tax, currency_loss, esc_val*10, esc_val*15]
+    })
+    fig_bar = px.bar(chart_data, x='Kategori', y='Tahap Risiko', color='Kategori', color_discrete_sequence=px.colors.sequential.Reds_r)
+    st.plotly_chart(fig_bar, use_container_width=True)
 
-st.divider()
-st.info(f"**Briefing:** At **{escalation}** level, {country1} experiences indirect fiscal 'theft' through supply chain disruption.")
+st.caption("© 2026 | Mohd Khairul Ridhuan | Strategic Geopolitical Auditor")
