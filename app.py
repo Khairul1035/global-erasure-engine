@@ -5,29 +5,60 @@ import yfinance as yf
 import numpy as np
 
 # ==========================================
-# 1. HCI & BRANDING SETUP (Professional Dark Mode)
+# 1. HCI & BRANDING SETUP (FIXED VISIBILITY)
 # ==========================================
 st.set_page_config(page_title="GLOBAL WAR INVOICE - Strategic Intelligence", layout="wide")
 
-# FIX: Changed unsafe_allow_index to unsafe_allow_html
+# CSS Updated to force white text visibility
 st.markdown("""
     <style>
+    /* Main Background */
+    .stApp {
+        background-color: #0E1117;
+    }
+    
+    /* Metric Box Text Visibility */
+    [data-testid="stMetricValue"] {
+        color: #ffffff !important;
+    }
+    [data-testid="stMetricLabel"] {
+        color: #A0AEC0 !important;
+    }
+    [data-testid="stMetricDelta"] {
+        color: #48BB78 !important;
+    }
+
+    .stMetric {
+        background-color: #1A202C !important;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #2D3748;
+    }
+
+    /* Receipt Box Styling */
     .receipt-container { 
         font-family: 'Courier New', Courier, monospace; 
-        color: black; 
-        background-color: #ffffff; 
+        color: #1A202C !important; /* Keep receipt text dark like a real paper */
+        background-color: #ffffff !important; 
         padding: 25px; 
         border-radius: 15px; 
         border: 3px solid #333; 
-        box-shadow: 5px 10px #888888;
+        box-shadow: 5px 10px #000000;
         margin-bottom: 20px; 
     }
-    .stMetric { background-color: #111; padding: 15px; border-radius: 10px; border: 1px solid #333; }
+    
+    /* Titles & Captions visibility */
+    h1, h2, h3, h5, p {
+        color: #ffffff !important;
+    }
+    .stCaption {
+        color: #CBD5E0 !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. STRATEGIC COUNTRY PROFILES (Rigorous Logic)
+# 2. STRATEGIC COUNTRY PROFILES
 # ==========================================
 COUNTRY_PROFILES = {
     "Malaysia": {"type": "Net Exporter", "debt_risk": "Moderate", "proximity": "Medium", "usd_dep": 0.75},
@@ -50,7 +81,7 @@ def fetch_global_intelligence():
 mkt = fetch_global_intelligence()
 
 # ==========================================
-# 3. SIDEBAR CONTROLS (HCI Design)
+# 3. SIDEBAR CONTROLS
 # ==========================================
 with st.sidebar:
     st.header("👤 Project Architect")
@@ -104,21 +135,22 @@ def generate_invoice(name, market, esc_level):
     inflation_tax = (market['USD'] - 100) * profile["usd_dep"] * esc_mod
     amygdala_load = "CRITICAL" if profile["proximity"] in ["High", "Critical"] else "ELEVATED"
     
-    # FIX: Changed unsafe_allow_index to unsafe_allow_html
+    # Receipt text must stay DARK on WHITE paper
     st.markdown(f"""
     <div class="receipt-container">
-        <center><b>OFFICIAL WAR INVOICE</b><br>{name.upper()}</center>
-        <hr>
-        <b>Profile:</b> {profile['type']}<br>
-        <b>Sovereign Risk:</b> {profile['debt_risk']}<br>
-        <hr>
-        1. FUEL & LOGISTICS COST ... +{energy_tax:.2f}%<br>
-        2. IMPORTED GOODS TAX ...... +{inflation_tax:.2f}%<br>
-        3. SOCIETAL PANIC LOAD ..... {amygdala_load}<br>
-        4. NATIONAL AUTONOMY RISK .. {profile['proximity']}<br>
-        <hr>
-        <center><b>TOTAL: ERODING SOVEREIGNTY</b><br>
-        <i>"Their war, your bill."</i></center>
+        <center><h2 style="color:black !important; margin:0;">OFFICIAL WAR INVOICE</h2>
+        <h4 style="color:black !important; margin:0;">{name.upper()}</h4></center>
+        <hr style="border-top: 2px solid black;">
+        <p style="color:black !important;"><b>Profile:</b> {profile['type']}</p>
+        <p style="color:black !important;"><b>Sovereign Risk:</b> {profile['debt_risk']}</p>
+        <hr style="border-top: 1px dashed black;">
+        <p style="color:black !important;">1. FUEL & LOGISTICS COST ... +{energy_tax:.2f}%</p>
+        <p style="color:black !important;">2. IMPORTED GOODS TAX ...... +{inflation_tax:.2f}%</p>
+        <p style="color:black !important;">3. SOCIETAL PANIC LOAD ..... {amygdala_load}</p>
+        <p style="color:black !important;">4. NATIONAL AUTONOMY RISK .. {profile['proximity']}</p>
+        <hr style="border-top: 2px solid black;">
+        <center><b style="color:black !important;">TOTAL: ERODING SOVEREIGNTY</b><br>
+        <i style="color:black !important;">"Their war, your bill."</i></center>
     </div>
     """, unsafe_allow_html=True)
 
@@ -129,7 +161,7 @@ with res2: generate_invoice(country2, mkt, escalation)
 with res3: generate_invoice(country3, mkt, escalation)
 
 # ==========================================
-# 6. STRATEGIC BRIEFING (The "Why")
+# 6. STRATEGIC BRIEFING
 # ==========================================
 st.divider()
 st.subheader("📡 World Strategist Briefing")
